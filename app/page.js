@@ -61,107 +61,100 @@ export default function Home() {
   }
 
   return (
-    <main style={{ maxWidth: 640, margin: "0 auto" }}>
-      <h1>T-Shirt Delivery</h1>
+    <main className="wrap">
+      <h1>👕 T-Shirt Delivery</h1>
 
       {stats && (
-        <div
-          style={{
-            border: "1px solid #ccc",
-            borderRadius: 6,
-            padding: 12,
-            marginBottom: 16,
-            background: "#f7f7f7",
-          }}
-        >
-          <div style={{ fontSize: 18, marginBottom: 6 }}>
-            <strong>Remaining: {stats.remaining}</strong> / {stats.total}{" "}
-            (delivered {stats.delivered})
+        <div className="stats">
+          <div className="stats-top">
+            <div>
+              <div className="stats-remaining">{stats.remaining}</div>
+              <div className="stats-sub">remaining</div>
+            </div>
+            <div className="stats-sub" style={{ textAlign: "right" }}>
+              {stats.delivered} delivered
+              <br />
+              {stats.total} total
+            </div>
           </div>
-          <div>
-            <strong>Remaining by size:</strong>{" "}
-            {stats.bySize
-              .filter((s) => s.remaining > 0)
-              .map((s) => `${s.shirt_size}: ${s.remaining}`)
-              .join("  •  ") || "all delivered 🎉"}
+          <div className="sizes">
+            {stats.bySize.filter((s) => s.remaining > 0).length === 0 ? (
+              <span className="all-done">All delivered 🎉</span>
+            ) : (
+              stats.bySize
+                .filter((s) => s.remaining > 0)
+                .map((s) => (
+                  <span key={s.shirt_size} className="size-chip">
+                    {s.shirt_size} <b>{s.remaining}</b>
+                  </span>
+                ))
+            )}
           </div>
-          <button
-            onClick={loadStats}
-            style={{ marginTop: 8, padding: "4px 10px", fontSize: 13 }}
-          >
+          <button className="link-btn" onClick={loadStats}>
             Refresh totals
           </button>
         </div>
       )}
 
-      <form onSubmit={search} style={{ marginBottom: 16 }}>
-        <div style={{ marginBottom: 8 }}>
-          <label style={{ marginRight: 16 }}>
-            <input
-              type="radio"
-              name="by"
-              checked={by === "index"}
-              onChange={() => setBy("index")}
-            />{" "}
+      <form onSubmit={search}>
+        <div className="toggle">
+          <button
+            type="button"
+            className={by === "index" ? "active" : ""}
+            onClick={() => setBy("index")}
+          >
             Index Number
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="by"
-              checked={by === "contact"}
-              onChange={() => setBy("contact")}
-            />{" "}
+          </button>
+          <button
+            type="button"
+            className={by === "contact" ? "active" : ""}
+            onClick={() => setBy("contact")}
+          >
             Contact Number
-          </label>
+          </button>
         </div>
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder={by === "index" ? "Enter index number" : "Enter contact number"}
-          autoFocus
-          style={{ padding: 8, fontSize: 16, width: "70%" }}
-        />
-        <button type="submit" style={{ padding: 8, fontSize: 16, marginLeft: 8 }}>
-          {loading ? "Searching..." : "Search"}
-        </button>
+        <div className="search-row">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={by === "index" ? "Enter index number" : "Enter contact number"}
+            inputMode="numeric"
+            autoFocus
+          />
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? "…" : "Search"}
+          </button>
+        </div>
       </form>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error">{error}</p>}
 
-      {results && results.length === 0 && <p>No orders found.</p>}
+      {results && results.length === 0 && <p className="empty">No orders found.</p>}
 
       {results && results.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0 }}>
+        <ul className="results">
           {results.map((o) => (
-            <li
-              key={o.id}
-              style={{
-                border: "1px solid #ccc",
-                borderRadius: 6,
-                padding: 12,
-                marginBottom: 10,
-                background: o.delivered ? "#e6ffe6" : "white",
-              }}
-            >
-              <div><strong>Name:</strong> {o.name}</div>
-              <div><strong>Size:</strong> {o.shirt_size || "—"}</div>
-              <div><strong>Index:</strong> {o.index_number || "—"}</div>
-              <div><strong>Contact:</strong> {o.contact_number || "—"}</div>
-              <div style={{ margin: "6px 0" }}>
-                <strong>Status:</strong>{" "}
-                {o.delivered ? (
-                  <span style={{ color: "green" }}>
-                    ✅ Delivered
-                    {o.delivered_at ? ` (${new Date(o.delivered_at).toLocaleString()})` : ""}
-                  </span>
-                ) : (
-                  <span style={{ color: "#b30000" }}>❌ Not delivered</span>
-                )}
+            <li key={o.id} className={`card${o.delivered ? " delivered" : ""}`}>
+              <div className="card-head">
+                <div className="card-name">{o.name}</div>
+                <div className="size-badge">{o.shirt_size || "—"}</div>
+              </div>
+              <div className="card-meta">
+                <span>Index: {o.index_number || "—"}</span>
+                <span>Contact: {o.contact_number || "—"}</span>
+              </div>
+              <div className={`status ${o.delivered ? "yes" : "no"}`}>
+                {o.delivered
+                  ? `✅ Delivered${
+                      o.delivered_at
+                        ? " · " + new Date(o.delivered_at).toLocaleString()
+                        : ""
+                    }`
+                  : "❌ Not delivered yet"}
               </div>
               <button
+                className={`btn-deliver${o.delivered ? " undo" : ""}`}
                 onClick={() => toggleDelivered(o)}
-                style={{ padding: "6px 12px", fontSize: 15 }}
               >
                 {o.delivered ? "Undo delivery" : "Mark as delivered"}
               </button>
