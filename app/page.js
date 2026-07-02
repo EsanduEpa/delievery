@@ -12,7 +12,7 @@ export default function Home() {
 
   async function loadStats() {
     try {
-      const res = await fetch("/api/stats");
+      const res = await fetch("/api/stats", { cache: "no-store" });
       const data = await res.json();
       if (data.ok) setStats(data);
     } catch {
@@ -30,7 +30,9 @@ export default function Home() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}&by=${by}`);
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q.trim())}&by=${by}`, {
+        cache: "no-store",
+      });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Search failed");
       setResults(data.results);

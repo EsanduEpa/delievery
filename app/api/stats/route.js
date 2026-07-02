@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { ensureSchema, sql } from "../../../lib/db";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 // GET /api/stats -> remaining (not delivered) totals, overall and per size
 export async function GET() {

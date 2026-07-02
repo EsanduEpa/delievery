@@ -3,6 +3,8 @@ import { ensureSchema, sql } from "../../../lib/db";
 import orders from "../../../data/orders.json";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 // POST /api/seed         -> seed only if table is empty
 // POST /api/seed?force=1 -> wipe and reseed
