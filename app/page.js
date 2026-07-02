@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [q, setQ] = useState("");
@@ -8,6 +8,21 @@ export default function Home() {
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [stats, setStats] = useState(null);
+
+  async function loadStats() {
+    try {
+      const res = await fetch("/api/stats");
+      const data = await res.json();
+      if (data.ok) setStats(data);
+    } catch {
+      /* ignore stats errors */
+    }
+  }
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   async function search(e) {
     e?.preventDefault();
@@ -39,6 +54,7 @@ export default function Home() {
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Update failed");
       setResults((rs) => rs.map((r) => (r.id === data.order.id ? data.order : r)));
+      loadStats();
     } catch (err) {
       alert("Error: " + (err.message || err));
     }
@@ -47,6 +63,36 @@ export default function Home() {
   return (
     <main style={{ maxWidth: 640, margin: "0 auto" }}>
       <h1>T-Shirt Delivery</h1>
+
+      {stats && (
+        <div
+          style={{
+            border: "1px solid #ccc",
+            borderRadius: 6,
+            padding: 12,
+            marginBottom: 16,
+            background: "#f7f7f7",
+          }}
+        >
+          <div style={{ fontSize: 18, marginBottom: 6 }}>
+            <strong>Remaining: {stats.remaining}</strong> / {stats.total}{" "}
+            (delivered {stats.delivered})
+          </div>
+          <div>
+            <strong>Remaining by size:</strong>{" "}
+            {stats.bySize
+              .filter((s) => s.remaining > 0)
+              .map((s) => `${s.shirt_size}: ${s.remaining}`)
+              .join("  •  ") || "all delivered 🎉"}
+          </div>
+          <button
+            onClick={loadStats}
+            style={{ marginTop: 8, padding: "4px 10px", fontSize: 13 }}
+          >
+            Refresh totals
+          </button>
+        </div>
+      )}
 
       <form onSubmit={search} style={{ marginBottom: 16 }}>
         <div style={{ marginBottom: 8 }}>
