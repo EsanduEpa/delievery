@@ -33,7 +33,7 @@ npm run gen
 
    - To wipe and reload the data later: `curl -X POST "https://YOUR-APP.vercel.app/api/seed?force=1"`
 
-## Local development
+## Local development setup
 
 ```bash
 npm install
